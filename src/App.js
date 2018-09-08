@@ -11,6 +11,7 @@ import {connect} from 'react-redux';
 import LoginForm from './containers/LoginForm'
 import * as api from './api';
 import spinner from './loadingicons/Gear-1s-200px.gif';
+import {SET_USER} from "./reducers/actions";
 
 class App extends Component {
 
@@ -22,7 +23,28 @@ class App extends Component {
     componentDidMount() {
         api.probeServer().then((e) => {
             console.log("Server probed. Running Lumen version: " + e.lumen);
-            this.setState({ serverProbed: true });
+            let ptoken = api.findToken();
+            if(ptoken == null) {
+                console.log("No potential token from a previous session.");
+                this.setState({serverProbed: true});
+            }
+            else {
+                console.log("Found a potential token. Attempting.");
+                api.setApiToken(ptoken);
+                api.getUser().then((e) => {
+                    if(e.code !== 200) {
+                        console.log("Attempt failed. Falling back to login.");
+                        api.setApiToken(null);
+                        window.localStorage.removeItem("token");
+                        this.setState({ serverProbed: true });
+                    }
+                    else {
+                        console.log("Attempt success. User: ", e.user);
+                        this.props.dispatch({type: SET_USER, user: {token: ptoken, user: e.user}});
+                        this.setState({serverProbed: true});
+                    }
+                });
+            }
         });
     }
 
@@ -31,7 +53,6 @@ class App extends Component {
             return (
                 <div>
                     <div className="d-flex justify-content-center">
-                        <img src={spinner} width={"50px"} height={"50px"} alt={"Probing server..."} />
                         <img src={spinner} width={"50px"} height={"50px"} alt={"Probing server..."} />
                     </div>
                     <div className="d-flex justify-content-center">
