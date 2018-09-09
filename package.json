@@ -1,5 +1,6 @@
 {
   "name": "tiremanager",
+  "productName": "TireManager",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -9,10 +10,13 @@
     "react": "^16.5.0",
     "react-dom": "^16.5.0",
     "react-redux": "^5.0.7",
+    "react-router": "^4.3.1",
+    "react-router-dom": "^4.3.1",
     "react-scripts": "1.1.5",
-    "redux": "^4.0.0"
+    "redux": "^4.0.0",
+    "sweetalert2": "^7.26.28"
   },
-  "main": "src/electron-starter.js",
+  "main": "electron-support/electron-starter.js",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -20,11 +24,13 @@
     "eject": "react-scripts eject",
     "electron": "electron .",
     "electron-dev": "set ELECTRON_START_URL=http://localhost:5000 && electron .",
-    "dev": "nf start"
+    "dev": "nf start",
+    "package": "npm run build && electron-packager . --ignore=src --ignore public"
   },
   "homepage": "./",
   "devDependencies": {
     "electron": "^2.0.8",
+    "electron-packager": "^12.1.1",
     "foreman": "^3.0.1"
   }
 }

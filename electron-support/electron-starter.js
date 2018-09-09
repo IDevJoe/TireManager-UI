@@ -59,5 +59,14 @@ app.on('activate', function () {
     }
 });
 
+electron.ipcMain.on("print_tag", (event, arg) => {
+    let printWindow = new BrowserWindow({width: 600, height: 800});
+    printWindow.loadURL(arg);
+    printWindow.webContents.on('did-finish-load', () => {
+        printWindow.webContents.print();
+        printWindow.setTitle("You may close this window.")
+    })
+});
+
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.

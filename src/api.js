@@ -1,9 +1,18 @@
-const SERVER_URL = "https://tiremanapi.devjoe.net";
+const SERVER_URL = "http://localhost:8000";
 let TOKEN = null;
 
 function __(path) {
     if(!path.startsWith("/")) path = "/" + path;
     return SERVER_URL + path;
+}
+
+export function parseValidation(firstState, validation) {
+    let keys = Object.keys(validation);
+    for(let k in keys) {
+        let key = keys[k];
+        firstState[key] = validation[key][0];
+    }
+    return firstState;
 }
 
 export function probeServer() {
@@ -63,5 +72,76 @@ export function getUser() {
                 res(j);
             });
     });
+}
 
+export function getTire(serial, includearchived=false) {
+    return new Promise((res, rej) => {
+        fetch(__("/tires/" + encodeURIComponent(serial) + (includearchived ? '?inc_archived=1' : '')), authHeader()).then(e => e.json())
+            .catch(e => rej(e))
+            .then((j) => {
+                res(j);
+            });
+    });
+}
+
+export function getTag(serial) {
+    return new Promise((res, rej) => {
+        fetch(__("/tires/" + encodeURIComponent(serial) + "/tag"), authHeader()).then(e => e.json())
+            .catch(e => rej(e))
+            .then((j) => {
+                res(j);
+            });
+    });
+}
+
+export function deleteTire(serial) {
+    let defopts = authHeader();
+    defopts.method = "DELETE";
+    return new Promise((res, rej) => {
+        fetch(__("/tires/" + encodeURIComponent(serial)), defopts).then(e => e.json())
+            .catch(e => rej(e))
+            .then((j) => {
+                res(j);
+            });
+    });
+}
+
+export function edit(serial, json) {
+    let defopts = authHeader();
+    defopts.method = "PATCH";
+    defopts.headers["Content-Type"] = "application/json; charset=UTF-8";
+    defopts.body = JSON.stringify(json);
+    return new Promise((res, rej) => {
+        fetch(__("/tires/" + encodeURIComponent(serial)), defopts).then(e => e.json())
+            .catch(e => rej(e))
+            .then((j) => {
+                res(j);
+            });
+    });
+}
+
+export function modRaces(serial, add = true) {
+    let defopts = authHeader();
+    defopts.method = "POST";
+    return new Promise((res, rej) => {
+        fetch(__("/tires/" + encodeURIComponent(serial) + (add ? "/increment" : "/decrement") ), defopts).then(e => e.json())
+            .catch(e => rej(e))
+            .then((j) => {
+                res(j);
+            });
+    });
+}
+
+export function registerTire(json) {
+    let defopts = authHeader();
+    defopts.method = "PUT";
+    defopts.headers["Content-Type"] = "application/json; charset=UTF-8";
+    defopts.body = JSON.stringify(json);
+    return new Promise((res, rej) => {
+        fetch(__("/tires"), defopts).then(e => e.json())
+            .catch(e => rej(e))
+            .then((j) => {
+                res(j);
+            });
+    });
 }

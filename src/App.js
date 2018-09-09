@@ -12,6 +12,8 @@ import LoginForm from './containers/LoginForm'
 import * as api from './api';
 import spinner from './loadingicons/Gear-1s-200px.gif';
 import {SET_USER} from "./reducers/actions";
+import Dashboard from "./containers/Dashboard";
+import {withRouter} from 'react-router-dom';
 
 class App extends Component {
 
@@ -63,7 +65,7 @@ class App extends Component {
         }
         return (
             <div>
-                { this.props.user == null ? <LoginForm /> : ''}
+                { this.props.user == null ? <LoginForm /> : <Dashboard />}
             </div>
         );
     }
@@ -75,4 +77,4 @@ const mstp = state => {
     }
 };
 
-export default connect(mstp)(App);
+export default withRouter(connect(mstp)(App));
