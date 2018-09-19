@@ -145,3 +145,77 @@ export function registerTire(json) {
             });
     });
 }
+
+export function fetchCutTemplates() {
+    return new Promise((res, rej) => {
+        fetch(__("/cuts/templates"), authHeader()).then(e => e.json())
+            .catch(e => rej(e))
+            .then((j) => {
+                res(j);
+            });
+    });
+}
+
+export function deleteCut(id) {
+    let defopts = authHeader();
+    defopts.method = "DELETE";
+    return new Promise((res, rej) => {
+        fetch(__("/cuts/" + encodeURIComponent(id)), defopts).then(e => e.json())
+            .catch(e => rej(e))
+            .then((j) => {
+                res(j);
+            });
+    });
+}
+
+export function addCutTemplate(json) {
+    if(json.name === "") return new Promise((res, rej) => {});
+    let defopts = authHeader();
+    defopts.method = "PUT";
+    defopts.headers["Content-Type"] = "application/json; charset=UTF-8";
+    defopts.body = JSON.stringify(json);
+    return new Promise((res, rej) => {
+        fetch(__("/cuts/templates"), defopts).then(e => e.json())
+            .catch(e => rej(e))
+            .then((j) => {
+                res(j);
+            });
+    });
+}
+
+export function fetchTireCuts(serial) {
+    return new Promise((res, rej) => {
+        fetch(__("/tires/" + encodeURIComponent(serial) + "/cuts"), authHeader()).then(e => e.json())
+            .catch(e => rej(e))
+            .then((j) => {
+                res(j);
+            });
+    });
+}
+
+export function addTireCut(serial, json) {
+    if(json.name === "") return new Promise((res, rej) => {});
+    let defopts = authHeader();
+    defopts.method = "PUT";
+    defopts.headers["Content-Type"] = "application/json; charset=UTF-8";
+    defopts.body = JSON.stringify(json);
+    return new Promise((res, rej) => {
+        fetch(__("/tires/" + encodeURIComponent(serial) + "/cuts"), defopts).then(e => e.json())
+            .catch(e => rej(e))
+            .then((j) => {
+                res(j);
+            });
+    });
+}
+
+export function recoverTire(serial) {
+    let defopts = authHeader();
+    defopts.method = "POST";
+    return new Promise((res, rej) => {
+        fetch(__("/tires/" + encodeURIComponent(serial) + "/recover"), defopts).then(e => e.json())
+            .catch(e => rej(e))
+            .then((j) => {
+                res(j);
+            });
+    });
+}

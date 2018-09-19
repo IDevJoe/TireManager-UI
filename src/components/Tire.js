@@ -17,14 +17,15 @@ class Tire extends Component {
         this.subRace = this.subRace.bind(this);
         this.editComments = this.editComments.bind(this);
         this.editType = this.editType.bind(this);
+        this.recoverTire = this.recoverTire.bind(this);
         this.state = {exists: true, EC: false, EM: false, ES: false, ERC: false};
         this.tpood = false;
     }
     printTag() {
-        if(this.tpood) api.getTag(this.props.tire.serial).then((e) => {
+        api.getTag(this.props.tire.serial).then((e) => {
             electron.ipcRenderer.send("print_tag", e.image);
         });
-        else electron.ipcRenderer.send("print_tag", this.props.tag);
+        //else electron.ipcRenderer.send("print_tag", this.props.tag);
     }
     archiveTire() {
         api.deleteTire(this.props.tire.serial);
@@ -66,15 +67,19 @@ class Tire extends Component {
         api.edit(this.props.tire.serial, {type: this.type.value});
         this.tpood = true;
     }
+    recoverTire() {
+        api.recoverTire(this.props.tire.serial);
+        this.setState({exists: false});
+    }
     render() {
         if(!this.state.exists) return null;
         return <div className="card">
             <div className="card-body">
                 <div className={"row"}>
                     <div className={"col-md-9"}>
-                        <h3><EditableField text={this.props.tire.car} edited={this.changeCar} editing={this.state.EC} EP={() => this.setState({EC: true})} /> / {this.props.tire.serial}</h3>
-                        <h4><EditableField text={this.props.tire.manufacturer} edited={this.changeManu} editing={this.state.EM} EP={() => this.setState({EM: true})} /></h4>
-                        <p>Size <EditableField text={ this.props.tire.size } edited={this.changeSize} editing={this.state.ES} EP={() => this.setState({ES: true})} />, in { this.props.tire.race_count } {this.props.tire.race_count !== 1 ? 'races' : 'race'}</p>
+                        <h3>{this.props.tire.deleted_at == null ? <EditableField text={this.props.tire.car} edited={this.changeCar} editing={this.state.EC} EP={() => this.setState({EC: true})} /> : this.props.tire.car} / {this.props.tire.serial}</h3>
+                        <h4>{this.props.tire.deleted_at == null ? <EditableField text={this.props.tire.manufacturer} edited={this.changeManu} editing={this.state.EM} EP={() => this.setState({EM: true})} /> : this.props.tire.manufacturer}</h4>
+                        <p>Size {this.props.tire.deleted_at == null ? <EditableField text={ this.props.tire.size } edited={this.changeSize} editing={this.state.ES} EP={() => this.setState({ES: true})} /> : this.props.tire.size}, in { this.props.tire.race_count } {this.props.tire.race_count !== 1 ? 'races' : 'race'}</p>
                         <textarea defaultValue={this.props.tire.comments} className={"form-control"} ref={(e) => this.comments = e} onBlur={this.editComments} disabled={this.props.tire.deleted_at != null}></textarea>
                         <select className={"form-control mt-2"} style={{width: '30%'}} defaultValue={this.props.tire.type} ref={(e) => this.type = e} onChange={this.editType} disabled={this.props.tire.deleted_at != null}>
                             <option value={"GEN"} disabled>Select type</option>
@@ -90,7 +95,7 @@ class Tire extends Component {
                     </div>
                 </div>
                 {
-                    this.props.tire.deleted_at != null ? <a href="javascript:void(0)" className={"card-link"}>Recover</a>
+                    this.props.tire.deleted_at != null ? <a href="javascript:void(0)" className={"card-link"} onClick={this.recoverTire}>Recover</a>
                         :
                         <div>
                             {this.props.tag ? <a href="javascript:void(0)" className={"card-link"} onClick={this.printTag}>Print Tag</a> : ''}

@@ -6,6 +6,7 @@ import * as api from '../api';
 import SearchTire from "./pages/SearchTire";
 import ArchivedSearch from "./pages/ArchivedSearch";
 import NewTire from "./pages/NewTire";
+import CutTemplates from "./pages/CutTemplates";
 
 class Dashboard extends Component {
     constructor() {
@@ -49,6 +50,7 @@ class Dashboard extends Component {
                     <Route path={"/"} exact component={SearchTire} />
                     <Route path={"/tire/archives"} exact component={ArchivedSearch} />
                     <Route path={"/tire/new"} exact component={NewTire} />
+                    <Route path={"/cuts/templates"} exact component={CutTemplates} />
                 </div>
             </div>
         </div>;
