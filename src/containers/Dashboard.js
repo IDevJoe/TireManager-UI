@@ -27,19 +27,19 @@ class Dashboard extends Component {
                         <li className={"nav-item"}>
                             <NavLink className={"nav-link"} to={"/"} exact>Search Tire</NavLink>
                         </li>
-                        <li className={"nav-item"}>
+                        {!api.isOffline() ? <li className={"nav-item"}>
                             <NavLink className={"nav-link"} to={"/tire/archives"}>Search Tire Archives</NavLink>
-                        </li>
+                        </li> : '' }
                         <li className={"nav-item"}>
                             <NavLink className={"nav-link"} to={"/tire/new"}>New Tire</NavLink>
                         </li>
                     </ul>
-                    <hr />
+                    {!api.isOffline() ? <div><hr />
                     <ul className={"nav nav-pills flex-column"}>
                         <li className={"nav-item"}>
                             <NavLink className={"nav-link"} to={"/cuts/templates"}>Cut Templates</NavLink>
                         </li>
-                    </ul>
+                    </ul></div> : ''}
                     <hr />
                     <small>
                         Logged in as {this.props.user.user.name}.

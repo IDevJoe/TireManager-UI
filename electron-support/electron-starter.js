@@ -6,6 +6,7 @@ const BrowserWindow = electron.BrowserWindow;
 
 const path = require('path');
 const url = require('url');
+const fs = require('fs');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -66,6 +67,28 @@ electron.ipcMain.on("print_tag", (event, arg) => {
         printWindow.webContents.print();
         printWindow.setTitle("You may close this window.")
     })
+});
+
+function prepCache() {
+    if(!fs.existsSync(path.join(__dirname, "cache"))) fs.mkdirSync(path.join(__dirname, "cache"));
+}
+
+electron.ipcMain.on("get_cache", (event, arg) => {
+    prepCache();
+    if(!fs.existsSync(path.join(__dirname, "cache", arg))) {
+        event.returnValue = null;
+        return;
+    }
+    event.returnValue = JSON.parse(fs.readFileSync(path.join(__dirname, "cache", arg), 'utf8'));
+});
+
+electron.ipcMain.on("set_cache", (event, arg) => {
+    prepCache();
+    if(fs.existsSync(path.join(__dirname, "cache", arg[0]))) {
+        fs.truncateSync(path.join(__dirname, "cache", arg[0]))
+    }
+    fs.writeFile(path.join(__dirname, "cache", arg[0]), JSON.stringify(arg[1]));
+    event.returnValue = true;
 });
 
 // In this file you can include the rest of your app's specific main process

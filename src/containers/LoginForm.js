@@ -21,6 +21,8 @@ class LoginForm extends Component {
                 this.setState({validation: valid});
             } else if(e.code === 401) {
                 this.setState({genMsg: "Invalid username or password."});
+            } else if(e.code === 400) {
+                this.setState({genMsg: e.message});
             } else if(e.code === 200) {
                 api.setApiToken(e.token);
                 api.getUser().then((ee) => {
