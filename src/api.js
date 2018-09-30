@@ -2,6 +2,7 @@ import swal from 'sweetalert2';
 const SERVER_URL = process.env.NODE_ENV === "production" ? "https://tiremanapi.devjoe.net" : "http://localhost:8000";
 let TOKEN = null;
 let OFFLINE_MODE = false;
+let TID = -1000;
 
 const electron = window.require('electron');
 
@@ -298,6 +299,19 @@ export function fetchCutTemplates() {
 export function deleteCut(id) {
     let defopts = authHeader();
     defopts.method = "DELETE";
+    //
+    let cuts = fetchFromCache("cuts");
+    let cut = cuts.find((e) => e.id === id);
+    let i = cuts.indexOf(cut);
+    cuts.splice(i, 1);
+    setCache("cuts", cuts);
+    //
+    if(OFFLINE_MODE) {
+        addToRequestQueue("/cuts/" + encodeURIComponent(id), "DELETE", defopts);
+        return new Promise((res, rej) => {
+            res();
+        });
+    }
     return new Promise((res, rej) => {
         fetch(__("/cuts/" + encodeURIComponent(id)), defopts).then(e => e.json())
             .catch(e => rej(e))
@@ -328,7 +342,7 @@ export function fetchTireCuts(serial) {
     if(OFFLINE_MODE) return new Promise((res, rej) => {
         let cache = fetchFromCache("cuts");
         if(cache == null) return res({code: 200, cuts: [{id: -1, name: "-- NOT AVAILABLE --"}]});
-        let resu = cache.filter((e) => e.tire !== null).filter((e) => e.tire.serial === serial);
+        let resu = cache.filter((e) => e.tire != null).filter((e) => e.tire.serial === serial);
         if(resu == null) return res({code: 200, cuts: []});
         res({code: 200, cuts: resu});
     });
@@ -347,12 +361,25 @@ export function addTireCut(serial, json) {
     defopts.method = "PUT";
     defopts.headers["Content-Type"] = "application/json; charset=UTF-8";
     defopts.body = JSON.stringify(json);
+    //
+    let cuts = fetchFromCache("cuts");
+    //
+    if(OFFLINE_MODE) {
+        addToRequestQueue("/tires/" + encodeURIComponent(serial) + "/cuts", "PUT", defopts);
+        return new Promise((res, rej) => {
+            cuts.push({id: TID, name: json.name});
+            setCache("cuts", cuts);
+            res({code: 200, cut: {id: TID, name: json.name}});
+            TID--;
+        });
+    }
     return new Promise((res, rej) => {
         fetch(__("/tires/" + encodeURIComponent(serial) + "/cuts"), defopts).then(e => e.json())
             .catch(e => rej(e))
             .then((j) => {
                 res(j);
-                downloadCutsCache();
+                cuts.push(j.cut);
+                setCache("cuts", cuts);
             });
     });
 }
